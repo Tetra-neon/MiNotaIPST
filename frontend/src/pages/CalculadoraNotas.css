@@ -1,0 +1,385 @@
+/* Calculadora de Notas - Estilos */
+
+.calculadora-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.calculadora-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 20px;
+}
+
+/* Header */
+.calculadora-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 0;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.header-content {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.calculadora-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+/* Container */
+.calculadora-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Calculator Card */
+.calculator-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.card-section {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.card-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.card-section h2 {
+  color: #2d3748;
+  font-size: 1.3rem;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Subject Select */
+.subject-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.subject-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Evaluations Input */
+.evaluations-input {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.evaluation-input-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.eval-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.eval-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.eval-percentage {
+  background: #e2e8f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  color: #4a5568;
+}
+
+.eval-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eval-input input {
+  width: 80px;
+  padding: 8px 12px;
+  border: 2px solid #e2e8f0;
+  border-radius: 6px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.eval-input input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.save-btn {
+  padding: 8px 12px;
+  background: #667eea;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s;
+}
+
+.save-btn:hover:not(:disabled) {
+  background: #5a5cd8;
+}
+
+.save-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Target Input */
+.target-input {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.target-input input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.calculate-btn {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.calculate-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.25);
+}
+
+.calculate-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Estimation Results */
+.estimation-results {
+  margin-top: 32px;
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.status-banner {
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.status-emoji {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.status-banner h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #1a202c;
+}
+
+.estimation-details {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row span {
+  color: #4a5568;
+}
+
+.detail-row strong {
+  font-size: 1.2rem;
+  color: #2d3748;
+}
+
+.pending-evaluations {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.pending-evaluations h4 {
+  color: #2d3748;
+  margin: 0 0 16px 0;
+  font-size: 1.1rem;
+}
+
+.suggested-evaluation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.suggested-evaluation:last-child {
+  margin-bottom: 0;
+}
+
+.suggested-evaluation .eval-name {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+.suggested-grade {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.recommendation {
+  background: #e6f3ff;
+  border: 1px solid #b8daff;
+  color: #004085;
+  padding: 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+}
+
+.recommendation p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.empty-state p {
+  color: #718096;
+  font-size: 1.1rem;
+  margin: 0 0 24px 0;
+}
+
+/* Error Alert */
+.error-alert {
+  background: #fee;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .calculator-card {
+    padding: 24px;
+  }
+  
+  .evaluation-input-row {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .eval-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .target-input {
+    flex-direction: column;
+  }
+  
+  .target-input input,
+  .calculate-btn {
+    width: 100%;
+  }
+}
