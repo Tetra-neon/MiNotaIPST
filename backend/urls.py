@@ -17,6 +17,8 @@ urlpatterns = [
 
     # Apps del proyecto
     # URLs de autenticación personalizada
+    path('api/auth/', include('djoser.urls')),
+    path('api/auth/', include('djoser.urls.jwt')), # Para login/refresh/verify con djoser
     path('api/', include('accounts.urls')),
     # URLs de grades (subjects, evaluations, etc.)
     path('api/', include('grades.urls')),
