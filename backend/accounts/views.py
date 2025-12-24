@@ -8,9 +8,9 @@ from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.utils import timezone
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .serializers import UsuarioRegistroSerializer, UsuarioSerializer
-import re 
+import re
 
 Usuario = get_user_model()
 
@@ -360,4 +360,19 @@ def dashboard_summary(request):
 def user_profile(request):
     """Vista para obtener el perfil del usuario actual"""
     serializer = UsuarioSerializer(request.user)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([AllowAny]) # Permitimos que cualquiera vea el logo/colores antes de loguearse
+def institucion_config(request):
+    config = InstitucionConfig.objects.first()
+    if not config:
+        # Configuración por defecto si no existe nada en BD
+        return Response({
+            "nombre": "MiNota App",
+            "color_primario": "#1976d2",
+            "color_secundario": "#dc004e",
+            "banner_activo": False
+        })
+    serializer = InstitucionConfigSerializer(config)
     return Response(serializer.data)

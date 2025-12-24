@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
 from django.conf import settings
+from .models import InstitucionConfig
 
 Usuario = get_user_model()
 
@@ -85,3 +86,8 @@ class UsuarioSerializer(serializers.ModelSerializer):
     
     def get_full_name(self, obj):
         return obj.get_full_name()
+    
+class InstitucionConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InstitucionConfig
+        fields = '__all__'
