@@ -84,7 +84,7 @@ class SubjectViewSet(viewsets.ModelViewSet):
                     setattr(instance, field, value)
                 instance.save()
                 
-                # Actualizar evaluaciones 
+                # Actualizar evaluaciones
                 existing_evaluations = instance.evaluations.all()
                 evaluations_with_grades = existing_evaluations.filter(is_completed=True)
                 
