@@ -5,8 +5,9 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Asignaturas from "./pages/Asignaturas";
+import Periodos from './pages/Periodos';
 import CalculadoraNotas from "./pages/CalculadoraNotas";
-import Contact from "./pages/Contact"; // AGREGAR ESTA LÍNEA
+import Contact from "./pages/Contact";
 import { authService } from "./services/api";
 import "./App.css";
 
@@ -16,20 +17,20 @@ function App() {
 
   useEffect(() => {
     console.log("App iniciando, verificando autenticación...");
-    
+
     // Verificar autenticación con localStorage
     const token = localStorage.getItem('token');
     const savedUser = localStorage.getItem('user');
-    
+
     console.log("Token encontrado:", !!token);
     console.log("Usuario guardado:", !!savedUser);
-    
+
     if (token && savedUser) {
       try {
         const userData = JSON.parse(savedUser);
         console.log("Usuario cargado desde localStorage:", userData);
         setUser(userData);
-        
+
         // Verificar que el token sea válido
         const isValid = checkTokenValidity(token);
         if (!isValid) {
@@ -42,7 +43,7 @@ function App() {
         handleLogout();
       }
     }
-    
+
     setLoading(false);
   }, []);
 
@@ -51,10 +52,10 @@ function App() {
     try {
       const parts = token.split('.');
       if (parts.length !== 3) return false;
-      
+
       const payload = JSON.parse(atob(parts[1]));
       const now = Date.now() / 1000;
-      
+
       return payload.exp > now;
     } catch (error) {
       return false;
@@ -69,13 +70,13 @@ function App() {
 
   const handleLogout = async () => {
     console.log("App: Manejando logout...");
-    
+
     try {
       await authService.logout();
     } catch (error) {
       console.error("Error en logout:", error);
     }
-    
+
     setUser(null);
     // Limpiar completamente localStorage
     localStorage.removeItem('token');
@@ -114,47 +115,47 @@ function App() {
       <div className="App">
         <Routes>
           {/* Ruta del home público */}
-          <Route 
-            path="/" 
+          <Route
+            path="/"
             element={
               user ? (
                 <Navigate to="/dashboard" replace />
               ) : (
                 <Home />
               )
-            } 
+            }
           />
-          
+
           {/* Ruta de login */}
-          <Route 
-            path="/login" 
+          <Route
+            path="/login"
             element={
               user ? (
                 <Navigate to="/dashboard" replace />
               ) : (
                 <Login onLogin={handleLogin} />
               )
-            } 
+            }
           />
-          
+
           {/* Ruta de registro */}
-          <Route 
-            path="/register" 
+          <Route
+            path="/register"
             element={
               user ? (
                 <Navigate to="/dashboard" replace />
               ) : (
                 <Register />
               )
-            } 
+            }
           />
-          
+
           {/* AGREGAR RUTA DE CONTACTO */}
-          <Route 
-            path="/contacto" 
-            element={<Contact />} 
+          <Route
+            path="/contacto"
+            element={<Contact />}
           />
-          
+
           {/* Rutas protegidas */}
           <Route
             path="/dashboard"
@@ -166,7 +167,17 @@ function App() {
               )
             }
           />
-          
+          <Route
+            path="/periodos"
+            element={
+              user ? (
+                <Periodos />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+
           <Route
             path="/asignaturas"
             element={
@@ -177,7 +188,7 @@ function App() {
               )
             }
           />
-          
+
           <Route
             path="/asignaturas/:id"
             element={
@@ -192,7 +203,7 @@ function App() {
               )
             }
           />
-          
+
           <Route
             path="/calculadora"
             element={
@@ -203,7 +214,7 @@ function App() {
               )
             }
           />
-          
+
           <Route
             path="/estadisticas"
             element={
@@ -218,7 +229,7 @@ function App() {
               )
             }
           />
-          
+
           {/* Ruta por defecto */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -1,16 +1,26 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { authService } from "../services/api";
+import { authService, periodoService } from "../services/api";
 import "./Dashboard.css";
 
 const Dashboard = ({ user, onLogout }) => {
   const navigate = useNavigate();
+  const [periodoActivo, setPeriodoActivo] = useState(null);
+
+  useEffect(() => {
+    // Cargar el nombre del semestre activo al entrar
+    const loadPeriodo = async () => {
+      const active = await periodoService.getActive();
+      setPeriodoActivo(active);
+    };
+    loadPeriodo();
+  }, []);
 
   const handleLogout = async () => {
-  await authService.logout(); // Agregar await
-  onLogout();
-  navigate('/');
-};
+    await authService.logout(); // Agregar await
+    onLogout();
+    navigate('/');
+  };
 
   // Handlers para los botones del dashboard
   const handleViewSubjects = () => {
@@ -28,7 +38,7 @@ const Dashboard = ({ user, onLogout }) => {
   const handleCalculateGrades = () => {
     navigate('/calculadora');
   };
-  
+
   const handleAttendanceControl = () => {
     alert('🚧 Funcionalidad "Control de Asistencia" en desarrollo.\n\nPróximamente podrás:\n• Registrar faltas por asignatura\n• Ver límites automáticos (75% teoría, 90% lab)\n• Calcular faltas restantes permitidas\n• Alertas de riesgo de reprobación');
   };
@@ -48,6 +58,15 @@ const Dashboard = ({ user, onLogout }) => {
       <main className="dashboard-main">
         <div className="welcome-section">
           <h2>Dashboard del Estudiante</h2>
+          {periodoActivo ? (
+            <div className="active-period-badge">
+              📅 Semestre Actual: <strong>{periodoActivo.nombre}</strong>
+            </div>
+          ) : (
+            <div className="warning-period">
+              ⚠️ No hay semestre activo. Crea uno para empezar.
+            </div>
+          )}
           <p>Gestiona tus asignaturas y calcula tus notas</p>
         </div>
 
@@ -97,7 +116,7 @@ const Dashboard = ({ user, onLogout }) => {
             </button>
           </div>
 
-            <div className="dashboard-card">
+          <div className="dashboard-card">
             <div className="card-icon">⚠️</div>
             <h3>Alertas</h3>
             <p>Prevención automótica de riegos</p>
@@ -105,6 +124,16 @@ const Dashboard = ({ user, onLogout }) => {
               Gestionar Asistencia
             </button>
           </div>
+
+          <div className="dashboard-card periodos-card">
+            <div className="card-icon">🗓️</div>
+            <h3>Semestres</h3>
+            <p>Historial y Nuevos Periodos</p>
+            <button className="card-btn" onClick={() => navigate('/periodos')}>
+              Gestionar Semestres
+            </button>
+          </div>
+
         </div>
       </main>
     </div>
