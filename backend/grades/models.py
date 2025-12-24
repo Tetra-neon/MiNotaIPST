@@ -2,8 +2,44 @@ from decimal import Decimal
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.utils import timezone  # Agregado para fechas automáticas
+
+# ==================== 1. NUEVO MODELO: PERIODO ACADÉMICO ====================
+class PeriodoAcademico(models.Model):
+    """
+    Representa un semestre o ciclo lectivo (Ej: 2024-1, 2024-2).
+    Permite agrupar asignaturas por semestre.
+    """
+    nombre = models.CharField(max_length=50, help_text="Ej: 2025-1, Verano 2025")
+    fecha_inicio = models.DateField()
+    fecha_fin = models.DateField()
+    activo = models.BooleanField(default=False, help_text="Marcar si es el semestre que estás cursando actualmente")
+    
+    # Vinculamos el periodo a un usuario
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='periodos',
+        verbose_name='Usuario'
+    )
+
+    class Meta:
+        verbose_name = "Periodo Académico"
+        verbose_name_plural = "Periodos Académicos"
+        ordering = ['-fecha_inicio']
+
+    def __str__(self):
+        estado = "ACTIVO" if self.activo else "CERRADO"
+        return f"{self.nombre} - {self.usuario.username} ({estado})"
+
+    def save(self, *args, **kwargs):
+        # Si activamos este periodo, desactivamos los demás del mismo usuario automáticamente
+        if self.activo:
+            PeriodoAcademico.objects.filter(usuario=self.usuario, activo=True).exclude(pk=self.pk).update(activo=False)
+        super().save(*args, **kwargs)
 
 
+# ==================== 2. MODELO SUBJECT (MODIFICADO) ====================
 class Subject(models.Model):
     SUBJECT_TYPES = [
         ('carrera', 'Asignatura de Carrera (5.3)'),
@@ -21,6 +57,17 @@ class Subject(models.Model):
         related_name='subjects',
         verbose_name='Usuario'
     )
+
+    # --- NUEVO CAMPO: VINCULACIÓN AL PERIODO ---
+    periodo = models.ForeignKey(
+        PeriodoAcademico, 
+        on_delete=models.CASCADE, 
+        related_name='asignaturas',
+        null=True,     # Permitimos null temporalmente para no romper datos viejos
+        blank=True,
+        verbose_name='Periodo Académico'
+    )
+    # -------------------------------------------
 
     name = models.CharField(
         max_length=200,
@@ -43,7 +90,7 @@ class Subject(models.Model):
     total_evaluations = models.PositiveIntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(10)],
         verbose_name='Cantidad Total de Evaluaciones',
-        blank=True  # Recomendación para evitar errores en formularios
+        blank=True
     )
 
     total_theory_classes = models.PositiveIntegerField(
@@ -68,10 +115,11 @@ class Subject(models.Model):
         verbose_name = 'Asignatura'
         verbose_name_plural = 'Asignaturas'
         ordering = ['name']
-        unique_together = ['user', 'name']
+        unique_together = ['user', 'name', 'periodo'] # Ahora es único por usuario, nombre Y PERIODO
 
     def __str__(self):
-        return f"{self.name} - {self.user.username}"
+        periodo_nombre = self.periodo.nombre if self.periodo else "Sin Periodo"
+        return f"{self.name} ({periodo_nombre})"
 
     @property
     def passing_grade(self):
@@ -79,7 +127,9 @@ class Subject(models.Model):
 
     @property
     def minimum_grade_for_exam(self):
-        return Decimal('3.9') #La nota para no dar examen verificar con los profesores y cambiar si es otro numero (reglamento interno verifiacar)
+        # La nota para eximirse suele ser distinta a la de aprobación.
+        # Ajusta esto según el reglamento de Santo Tomás. Generalmente es 5.0 o 5.5 sin rojos.
+        return Decimal('5.0') 
 
     @property
     def required_attendance_percentage(self):
@@ -87,8 +137,10 @@ class Subject(models.Model):
             return 75
         elif self.class_type == 'laboratorio':
             return 90
+        return 75
 
 
+# ==================== 3. MODELO EVALUATION (TUYO ORIGINAL) ====================
 class Evaluation(models.Model):
     subject = models.ForeignKey(
         Subject,
@@ -133,7 +185,6 @@ class Evaluation(models.Model):
         if self.grade is not None:
             self.is_completed = True
             if not self.date_completed:
-                from django.utils import timezone
                 self.date_completed = timezone.now().date()
         else:
             self.is_completed = False
@@ -142,6 +193,7 @@ class Evaluation(models.Model):
         super().save(*args, **kwargs)
 
 
+# ==================== 4. MODELO ATTENDANCE (TUYO ORIGINAL) ====================
 class Attendance(models.Model):
     subject = models.OneToOneField(
         Subject,
@@ -221,6 +273,7 @@ class Attendance(models.Model):
         }
 
 
+# ==================== 5. MODELO GRADE CALCULATION (TUYO ORIGINAL) ====================
 class GradeCalculation(models.Model):
     subject = models.ForeignKey(
         Subject,
