@@ -21,6 +21,8 @@ class PeriodoViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = PeriodoAcademicoSerializer
 
+    pagination_class = None  # Desactivar paginación para semestres
+    
     def get_queryset(self):
         return PeriodoAcademico.objects.filter(usuario=self.request.user)
 
