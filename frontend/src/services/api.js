@@ -12,11 +12,10 @@ API.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     console.log("🔍 Interceptor - Token encontrado:", !!token);
-    console.log("🔍 Interceptor - URL:", config.url);
+    // console.log("🔍 Interceptor - URL:", config.url); // Comentado para limpiar consola
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      console.log("✅ Header Authorization agregado");
     }
     return config;
   },
@@ -29,12 +28,9 @@ API.interceptors.request.use(
 // Interceptor para manejar errores de autenticación
 API.interceptors.response.use(
   (response) => {
-    console.log("✅ Respuesta exitosa:", response.status);
     return response;
   },
   async (error) => {
-    console.error("❌ Error en respuesta:", error.response?.status, error.response?.data);
-    
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
@@ -88,7 +84,6 @@ export const authService = {
           
           console.log("✅ Login JWT exitoso");
           
-          // Crear usuario básico
           const basicUser = { 
             username: username,
             id: 1 
@@ -159,8 +154,6 @@ export const authService = {
         console.error("Error al cerrar sesión:", error);
       }
     }
-    
-    // Limpiar todo el localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("refresh");
     localStorage.removeItem("user");
@@ -185,9 +178,41 @@ export const authService = {
   }
 };
 
-export const subjectService = {
+// === NUEVO: SERVICIO DE PERIODOS ACADÉMICOS ===
+export const periodoService = {
   getAll: async () => {
-    const response = await API.get("/subjects/");
+    const response = await API.get("/periodos/");
+    return response.data;
+  },
+
+  create: async (data) => {
+    const response = await API.post("/periodos/", data);
+    return response.data;
+  },
+
+  getActive: async () => {
+    try {
+        const response = await API.get("/periodos/active/");
+        return response.data;
+    } catch (error) {
+        return null; 
+    }
+  },
+
+  setActive: async (id) => {
+    const response = await API.patch(`/periodos/${id}/`, { activo: true });
+    return response.data;
+  }
+};
+
+export const subjectService = {
+  // AHORA ACEPTA UN FILTRO OPCIONAL DE PERIODO
+  getAll: async (periodo = null) => {
+    const config = {};
+    if (periodo) {
+        config.params = { periodo: periodo }; 
+    }
+    const response = await API.get("/subjects/", config);
     return response.data;
   },
 
@@ -230,7 +255,8 @@ export const subjectService = {
 
 export const dashboardService = {
   getSummary: async () => {
-    const response = await API.get("/dashboard/");
+    // Apuntamos a la nueva ruta correcta del backend
+    const response = await API.get("/dashboard/summary/");
     return response.data;
   },
   
@@ -241,7 +267,7 @@ export const dashboardService = {
 };
 
 export const estadisticasService = {
-  getGenerales: async (periodo = 'actual') => {
+  getGenerales: async (periodo = 'active') => {
     const response = await API.get(`/estadisticas/?periodo=${periodo}`);
     return response.data;
   },
