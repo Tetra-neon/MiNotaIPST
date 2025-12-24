@@ -1,18 +1,29 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+from dotenv import load_dotenv
+
+# --- CORRECCIÓN 1: Definir ruta exacta al .env ---
+env_path = Path(__file__).resolve().parent / '.env'
+load_dotenv(env_path)
+# -------------------------------------------------
 
 # Directorio base del proyecto
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Clave secreta
-SECRET_KEY = 'django-insecure-=r^twd##21+f2yir8k-ntnkhezhd4!54f#1!h0u%ww)umfy$02'
+# --- CORRECCIÓN 2: Llamar a la variable por su nombre ---
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-# Modo debug (False en producción)
-DEBUG = True
+# Modo debug
+DEBUG = os.getenv('DEBUG') == 'True'
 
 # Hosts permitidos
-ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# Nota: Si el .env falla, esto daría error, así que ponemos un valor por defecto seguro
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = allowed_hosts_env.split(',')
+else:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Aplicaciones instaladas
 INSTALLED_APPS = [
@@ -26,13 +37,12 @@ INSTALLED_APPS = [
     # Terceros
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',  # AGREGADO
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
 
-    # Apps personalizadas (ajustadas para Docker)
+    # Apps personalizadas
     'accounts',
     'grades',
-    # 'app.attendance',  # ← Descomentar cuando esté lista
 ]
 
 # Configuración de plantillas
@@ -74,11 +84,11 @@ WSGI_APPLICATION = 'wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'minotaipst'),
-        'USER': os.getenv('DB_USER', 'postgres'),
-        'PASSWORD': os.getenv('DB_PASSWORD', 'postgres'),
-        'HOST': os.getenv('DB_HOST', 'db'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 
@@ -94,78 +104,61 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20,
 }
 
-# JWT - CONFIGURACIÓN 
+# JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': False,
-
     'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
+    'SIGNING_KEY': SECRET_KEY, # Usa la variable cargada arriba
     'VERIFYING_KEY': None,
     'AUDIENCE': None,
     'ISSUER': None,
     'JWK_URL': None,
     'LEEWAY': 0,
-
     'AUTH_HEADER_TYPES': ('Bearer',),
     'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'user_id',
     'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
-
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
     'TOKEN_TYPE_CLAIM': 'token_type',
     'TOKEN_USER_CLASS': 'rest_framework_simplejwt.models.TokenUser',
-
     'JTI_CLAIM': 'jti',
-
     'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=60),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-# CORS - CONFIGURACIÓN MEJORADA
+# CORS
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
-
 CORS_ALLOW_CREDENTIALS = True
-
-# Solo para desarrollo - REMOVER EN PRODUCCIÓN
-CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_ALL_ORIGINS = True # Solo desarrollo
 CORS_ALLOWED_HEADERS = [
-    'accept',
-    'accept-encoding',
-    'authorization',
-    'content-type',
-    'dnt',
-    'origin',
-    'user-agent',
-    'x-csrftoken',
-    'x-requested-with',
+    'accept', 'accept-encoding', 'authorization', 'content-type',
+    'dnt', 'origin', 'user-agent', 'x-csrftoken', 'x-requested-with',
 ]
 
-# Validación de contraseñas
+# Validadores
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        'OPTIONS': {'min_length': 6}},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', 'OPTIONS': {'min_length': 6}},
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# Idioma y zona horaria
+# Idioma
 LANGUAGE_CODE = 'es-es'
 TIME_ZONE = 'America/Santiago'
 USE_I18N = True
 USE_TZ = True
 
-# Archivos estáticos y multimedia
+# Estáticos
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = 'media/'
@@ -176,14 +169,12 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'notificaciones.ipst@gmail.com'
-EMAIL_HOST_PASSWORD = 'isqhezsgepjicmce'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# Usuario personalizado
+# Usuario
 AUTH_USER_MODEL = 'accounts.Usuario'
-
-# Campo auto por defecto
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Seguridad
