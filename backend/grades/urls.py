@@ -1,20 +1,13 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    SubjectViewSet,
-    EvaluationViewSet,
-    dashboard_summary
-)
+from .views import SubjectViewSet, EvaluationViewSet, dashboard_summary, PeriodoViewSet # <-- Importa PeriodoViewSet
 
-# Crear router y registrar los ViewSets
 router = DefaultRouter()
 router.register(r'subjects', SubjectViewSet, basename='subject')
 router.register(r'evaluations', EvaluationViewSet, basename='evaluation')
+router.register(r'periodos', PeriodoViewSet, basename='periodo')  # <-- Registra el ViewSet de Periodos
 
 urlpatterns = [
-    # Endpoints REST automáticos generados por los ViewSets
     path('', include(router.urls)),
-    
-    # Dashboard específico de grades
-    path('dashboard/', dashboard_summary, name='grades-dashboard'),
+    path('dashboard/summary/', dashboard_summary, name='dashboard-summary'),
 ]
